@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express'
 import cors from 'cors';
 import session from 'express-session';
-import authorizationRouter from './routers/authRouter.js';
+import authRouter from './routers/authRouter.js';
 import { rateLimit } from 'express-rate-limit';
 import helmet from 'helmet';
 
@@ -31,7 +31,7 @@ app.use(generalLimiter);
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 5,
+    limit: 50,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     ipv6Subnet: 56,
@@ -44,7 +44,7 @@ app.use(session({
     cookie: {secure: false}
 }));
 
-app.use("/auth", authLimiter, authorizationRouter);
+app.use("/auth", authLimiter, authRouter);
 app.use(helmet());
 
 app.get('/{*splat}', (req, res) => {
