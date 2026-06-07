@@ -33,7 +33,7 @@ $effect(() => {
 
 <main class="login-main">
     <div class="login-card">
-        <h1>Whisper</h1>
+        <h1>Icarus</h1>
         <p class="login-title">Sign in to your account</p>
 
         <div class="field">

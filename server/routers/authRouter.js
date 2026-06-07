@@ -20,7 +20,7 @@ router.post("/login", async (req, res) =>{
     }
 
     const match = await compareHashedPasswords(password, user.password);
-
+    
     if(!match){
         return res.status(401).send({message: "Invalid credentials"});
     }

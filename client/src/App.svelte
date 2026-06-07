@@ -8,6 +8,8 @@ import Login from './components/Login/Login.svelte';
 import Home from './pages/Home/Home.svelte';
 import PrivateRoute from './components/PrivateRoutes/PrivateRoute.svelte';
 import Register from './components/Register/Register.svelte';
+import CreatePost from './pages/Post/CreatePost.svelte';
+import PostDetail from './pages/Post/PostDetail.svelte';
   
 onMount(() =>{
     checkAuth();
@@ -20,5 +22,16 @@ onMount(() =>{
     <NavBar />
     <Route path="/login"><Login /></Route>
     <Route path="/register"><Register /></Route>
-    <PrivateRoute Component={Home} />
+
+    <Route path="/posts/new">
+        <PrivateRoute  Component={CreatePost} />
+    </Route>
+
+    <Route path="/posts/:id" let:params>
+        <PrivateRoute Component={PostDetail} id={params.id} />
+    </Route>
+
+    <Route>
+        <PrivateRoute Component={Home} />
+    </Route>
 </Router>

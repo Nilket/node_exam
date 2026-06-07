@@ -3,7 +3,14 @@ export async function fetchGet(endpoint){
          const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
         credentials: 'include'
     });
-    return await response.json();
+    
+    const data = await response.json();
+
+    if(!response.ok) {
+        throw new Error(data.message || "Fetch get went wrong");
+    }
+
+    return data;
     } catch(error){
         console.log(error);
     }

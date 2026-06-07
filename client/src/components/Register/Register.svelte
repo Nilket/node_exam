@@ -32,9 +32,9 @@ async function handleRegister(){
 }
 </script>
 
-<main class="register-main">
-    <div class="register-card">
-    <h1>Whisper</h1>
+<main class="form-main">
+    <div class="form-card">
+    <h1>Icarus</h1>
     <p class="title">Create your account</p>
 
     <div class="row">

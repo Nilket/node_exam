@@ -2,16 +2,15 @@
 import { navigate } from 'svelte-routing';
 import { user, authorized } from '../../stores/userStore.js';
 
-let { Component } = $props();
+let { Component, ...props } = $props();
 
 $effect(() =>{
     if($authorized && !$user){
         navigate("/login", {replace: true});
     }
 });
-
 </script>
 
 {#if $authorized && $user}
-<Component />
+<Component {...props}/>
 {/if}

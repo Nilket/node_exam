@@ -18,11 +18,12 @@ async function handleLogout(){
 
 </script>
 <nav>
-    <Link to={$user ? "/" : "/login"} class="logo">Whisper</Link>
+    <Link to={$user ? "/" : "/login"} class="logo">Icarus</Link>
 
     <div class="links">
         {#if $user}
-        <span class="email">{$user.email}</span>
+        <span class="email">{$user.username}</span>
+        <Link to="/posts/new" class="btn-new-post">+</Link>
         <button onclick={handleLogout}>Log out</button>
 
         {:else}
