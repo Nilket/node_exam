@@ -1,8 +1,9 @@
 <script>
-    import { user } from '../../stores/userStore.js';
-    import { navigate, Link } from 'svelte-routing';
+    import { navigate } from 'svelte-routing';
     import { toast } from 'svelte-sonner';
-    import { fetchPost } from '../../util/fetchUtil.js';
+    import { fetchGet, fetchPatch } from '../../util/fetchUtil.js';
+
+    let { id } = $props();
 
     let title = $state('');
     let content = $state('');
@@ -16,6 +17,17 @@
         'CTF',
     ];
 
+    async function loadPost() {
+        try {
+            const data = await fetchGet(`/api/posts/${id}`);
+            title = data.post.title;
+            content = data.post.content;
+            category = data.post.category ?? '';
+        } catch (e) {
+            toast.error('Could not load post!');
+        }
+    }
+
     async function handleSubmit() {
         if (!title.trim() || !content.trim()) {
             toast.error('Title and text content is required!');
@@ -23,23 +35,23 @@
         }
 
         try {
-            const data = await fetchPost('/api/posts', {
-                title,
-                content,
-                category,
-            });
-            toast.success('Post published!');
-            navigate(`/posts/${data.id}`);
+            await fetchPatch(`/api/posts/${id}`, { title, content, category });
+            toast.success('Post updated!');
+            navigate(`/posts/${id}`);
         } catch (error) {
-            toast.error(error.message || 'An error occured during posting.');
+            toast.error(error.message || 'An error occured during updating.');
         }
     }
+
+    $effect(() => {
+        loadPost();
+    });
 </script>
 
 <main class="form-main">
     <div class="form-card">
-        <a class="back-btn" href="/">Back</a>
-        <p class="title">Create a post!</p>
+        <a class="back-btn" href="/posts/{id}">Back</a>
+        <p class="title">Edit post</p>
 
         <div class="field">
             <label for="category">Category</label>
@@ -72,6 +84,6 @@
             ></textarea>
         </div>
 
-        <button onclick={handleSubmit}>Publish post</button>
+        <button onclick={handleSubmit}>Save changes</button>
     </div>
 </main>

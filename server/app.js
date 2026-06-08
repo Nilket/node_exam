@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRouter from './routers/authRouter.js';
 import postsRouter from './routers/postsRouter.js';
+import usersRouter from './routers/usersRouter.js';
 import { rateLimit } from 'express-rate-limit';
 import helmet from 'helmet';
 
@@ -22,6 +23,8 @@ export const io = new Server(server, {
 app.use(express.json());
 
 app.use(express.urlencoded());
+
+app.use(helmet());
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -70,7 +73,8 @@ app.use(session({
 
 app.use("/auth", authLimiter, authRouter);
 app.use("/api/posts", postsRouter(io));
-app.use(helmet());
+app.use("/api/users", usersRouter);
+
 
 app.get('/{*splat}', (req, res) => {
     res.send(`<div>
