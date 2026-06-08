@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../database/connection.js';
 import { isLoggedIn } from '../middleWare/authMiddleware.js';
+import { hashPassword } from '../utils/encryption.js';
 
 const router = Router();
 
@@ -46,5 +47,49 @@ router.get("/:username", isLoggedIn, async (req, res) => {
         return res.status(500).send({ message: "Could not fetch profile" });
     }
 });
+
+router.put("/:username", isLoggedIn, async (req, res) => {
+    const {username, email, first_name, last_name, password} = req.body;
+    const userId = req.session.user.id;
+
+    try{
+        const getUserByIdStmt = await db.prepare(`SELECT * FROM users WHERE id = ?`);
+        const user = await getUserByIdStmt.get(userId);
+
+        if(!user){
+            return res.status(404).send({message: "User not found!"});
+        }
+
+        if(username || email){
+            const checkExisting = await db.prepare(`
+                SELECT * FROM users WHERE (username = ? OR email = ?) AND id != ?
+                `);
+                const existing = await checkExisting.get(username ?? user.username, email ?? user.email, userId);
+
+            if(existing){
+                return res.status(409).send({message: "Username or e-mail already taken!"});
+            }
+        }
+
+        const updatedUsername = username ?? user.username;
+        const updatedEmail = email ?? user.email;
+        const updatedFirstName = first_name ?? user.first_name;
+        const updatedLastName = last_name ?? user.last_name;
+        const updatedPassword = password ? await hashPassword(password) : user.password;
+
+        const updateUser = await db.prepare(`
+            UPDATE users SET username = ?, email = ?, first_name = ?, last_name = ?, password = ? WHERE id = ?
+            `);
+
+            await updateUser.run(updatedUsername,updatedEmail,updatedFirstName,updatedLastName,updatedPassword,userId);
+            req.session.user = { id: userId, username: updatedUsername, email: updatedEmail };
+
+            res.json({message: "Profile updated"});
+    } catch (e){
+        console.log(e);
+        return res.status(500).send({message: "Could not update profile!"});
+    }
+
+})
 
 export default router;
