@@ -47,9 +47,9 @@ export async function fetchDelete(endpoint){
     return data;
 }
 
-export async function fetchPatch(endpoint, body){
+export async function fetchPut(endpoint, body){
     const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
-        method: 'PATCH',
+        method: 'PUT',
         credentials: 'include',
         headers: {
             'Content-type': 'application/json',

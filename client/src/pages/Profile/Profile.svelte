@@ -1,7 +1,8 @@
 <script>
     import { fetchGet } from '../../util/fetchUtil.js';
-    import { navigate } from 'svelte-routing';
+    import { navigate, useRouter } from 'svelte-routing';
     import { toast } from 'svelte-sonner';
+    import { user } from '../../stores/userStore.js';
 
     let { username } = $props();
 
@@ -35,8 +36,12 @@
                     <span class="profile-name">{profile.first_name} {profile.last_name}</span>
                     <span class="profile-email">{profile.email}</span>
                 </div>
+                {#if $user.username === profile.username}
+                <a href="/users/edit" class="edit-profile-btn">Edit profile</a>
+                {/if}
             </div>
 
+            
             <div class="profile-stats">
                 <div class="stat">
                     <span class="stat-value">{stats.post_count}</span>

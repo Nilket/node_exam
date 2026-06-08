@@ -340,6 +340,11 @@ nav .links button:hover {
 .author {
     font-size: 0.8rem;
     color: #6b7280;
+    text-decoration: none;
+}
+
+.author:hover{
+    color: #A2BFFE;
 }
 
 .date {
@@ -601,6 +606,7 @@ nav .links button:hover {
     align-items: center;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .profile-avatar {
@@ -621,6 +627,7 @@ nav .links button:hover {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    flex: 1;
 }
 
 .profile-info h1 {
@@ -672,4 +679,22 @@ nav .links button:hover {
     color: #e5e7eb;
     margin-bottom: 1.25rem;
     text-align: left;
+}
+
+.edit-profile-btn {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #6b7280;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s;
+    margin-left: auto;
+}
+
+.edit-profile-btn:hover {
+    border-color: #A2BFFE;
+    color: #A2BFFE;
 }

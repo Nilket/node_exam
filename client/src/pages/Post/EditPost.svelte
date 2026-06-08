@@ -1,7 +1,7 @@
 <script>
     import { navigate } from 'svelte-routing';
     import { toast } from 'svelte-sonner';
-    import { fetchGet, fetchPatch } from '../../util/fetchUtil.js';
+    import { fetchGet, fetchPut } from '../../util/fetchUtil.js';
 
     let { id } = $props();
 
@@ -35,7 +35,7 @@
         }
 
         try {
-            await fetchPatch(`/api/posts/${id}`, { title, content, category });
+            await fetchPut(`/api/posts/${id}`, { title, content, category });
             toast.success('Post updated!');
             navigate(`/posts/${id}`);
         } catch (error) {

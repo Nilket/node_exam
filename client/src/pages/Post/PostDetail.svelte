@@ -107,7 +107,7 @@
                 {#if post.category}
                     <span class="category-tag">{post.category}</span>
                 {/if}
-                <span class="author">by {post.username}</span>
+                <a href="/users/{post.username}" class="author">by {post.username}</a>
                 <span class="date"
                     >{new Date(post.created_at).toLocaleString(
                         'da-DK'
@@ -145,7 +145,7 @@
                 {#each comments as comment (comment.id)}
                     <div class="comment-card">
                         <div class="comment-meta">
-                            <span class="author">{comment.username}</span>
+                            <a href="/users/{comment.username}" class="author">{comment.username}</a>
                             <span class="date"
                                 >{new Date(
                                     comment.created_at

@@ -12,6 +12,7 @@
     import PostDetail from './pages/Post/PostDetail.svelte';
     import EditPost from './pages/Post/EditPost.svelte';
     import Profile from './pages/Profile/Profile.svelte';
+    import EditProfile from './pages/Profile/EditProfile.svelte';
 
     onMount(() => {
         checkAuth();
@@ -39,6 +40,11 @@
     <Route path="/users/:username" let:params>
         <PrivateRoute Component={Profile} username={params.username} />
     </Route>
+
+    <Route path="/users/edit">
+        <PrivateRoute Component={EditProfile} />
+    </Route>
+
 
     <Route>
         <PrivateRoute Component={Home} />
