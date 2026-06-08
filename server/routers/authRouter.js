@@ -6,6 +6,13 @@ import { sendWelcomeEmail } from '../utils/mailUtil.js';
 
 const router = Router();
 
+router.get("/me", isLoggedIn, (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send({ user: null });
+    }
+    res.json({ user: req.session.user });
+});
+
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
@@ -28,13 +35,6 @@ router.post("/login", async (req, res) => {
 
     req.session.user = { id: user.id, username: username, email: user.email };
     res.json({ user: { id: user.id, username: user.username, email: user.email } });
-});
-
-router.get("/me", isLoggedIn, (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send({ user: null });
-    }
-    res.json({ user: req.session.user });
 });
 
 router.post("/logout", (req, res) => {

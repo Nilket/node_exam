@@ -58,39 +58,23 @@
         <div class="row">
             <div class="field">
                 <label for="first_name">First name</label>
-                <input
-                    type="text"
-                    id="first_name"
-                    bind:value={first_name}
-                />
+                <input type="text" id="first_name" bind:value={first_name} />
             </div>
 
             <div class="field">
                 <label for="last_name">Last name</label>
-                <input
-                    type="text"
-                    id="last_name"
-                    bind:value={last_name}
-                />
+                <input type="text" id="last_name" bind:value={last_name} />
             </div>
         </div>
 
         <div class="field">
             <label for="username">Username</label>
-            <input
-                type="text"
-                id="username"
-                bind:value={username}
-            />
+            <input type="text" id="username" bind:value={username} />
         </div>
 
         <div class="field">
             <label for="email">Email</label>
-            <input
-                type="email"
-                id="email"
-                bind:value={email}
-            />
+            <input type="email" id="email" bind:value={email} />
         </div>
 
         <div class="field">

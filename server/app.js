@@ -22,14 +22,12 @@ export const io = new Server(server, {
 
 app.use(express.json());
 
-app.use(express.urlencoded());
-
-app.use(helmet());
-
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
+
+app.use(helmet());
 
 //Ratelimiters
 const generalLimiter = rateLimit({
@@ -60,8 +58,6 @@ const socketLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-app.use('/socket.io', socketLimiter);
-
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -69,23 +65,13 @@ app.use(session({
     cookie: {secure: false}
 }));
 
-//Endpoints
-
+app.use('/socket.io', socketLimiter);
 app.use("/auth", authLimiter, authRouter);
 app.use("/api/posts", postsRouter(io));
 app.use("/api/users", usersRouter);
 
-
-app.get('/{*splat}', (req, res) => {
-    res.send(`<div>
-                <h1>404</h1>
-                <h3>Page - ${req.path} - doesn't exist</h3>
-            </div>`
-    );
-});
-
 app.all('/{*splat}', (req, res)  => {
-    res.send({ errorMessage: `The route for ${req.path} and the HTTP method ${req.method} does not exist` });
+    res.status(404).send({ message: `The route for ${req.path} and the HTTP method ${req.method} does not exist` });
 });
 
 const PORT = process.env.PORT ?? 8080;

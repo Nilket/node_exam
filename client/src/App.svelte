@@ -45,7 +45,6 @@
         <PrivateRoute Component={EditProfile} />
     </Route>
 
-
     <Route>
         <PrivateRoute Component={Home} />
     </Route>

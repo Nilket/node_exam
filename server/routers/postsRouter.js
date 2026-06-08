@@ -45,27 +45,26 @@ export default function postsRouter(io) {
         }
     });
 
-    router.post("/", isLoggedIn, async (req, res) => {
-        const { title, content, category } = req.body;
-        const user_id = req.session.user.id;
-
-        if (!title || !content) {
-            return res.status(400).send({ message: "Title and content is required" });
-        }
+    router.get("/:id/comments", isLoggedIn, async (req, res) => {
+        const { id } = req.params;
 
         try {
-            const insertPostStmt = await db.prepare(`
-                INSERT INTO posts (user_id, title, content, category) VALUES (?, ?, ?, ?)
+            const getCommentsByPostStmt = await db.prepare(`
+                SELECT c.*, u.username
+                FROM comments c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.post_id = ?
+                ORDER BY c.created_at ASC
             `);
-            const result = await insertPostStmt.run(user_id, title, content, category || null);
-            return res.status(201).json({ id: result.lastID });
+            const comments = await getCommentsByPostStmt.all(id);
+            res.json({ comments });
         } catch (e) {
             console.log(e);
-            return res.status(500).send({ message: "Could not create post" });
+            return res.status(500).send({ message: "Could not fetch comments" });
         }
     });
 
-    router.get("/:id", isLoggedIn, async (req, res) => {
+     router.get("/:id", isLoggedIn, async (req, res) => {
         const { id } = req.params;
 
         try {
@@ -92,32 +91,84 @@ export default function postsRouter(io) {
         }
     });
 
-    router.delete("/:id", isLoggedIn, async (req, res) =>{
-        const { id } = req.params;
-        const userId = req.session.user.id;
+    router.post("/", isLoggedIn, async (req, res) => {
+        const { title, content, category } = req.body;
+        const user_id = req.session.user.id;
 
-        try{
-            const getPostByIdStmt = await db.prepare(`SELECT * FROM posts WHERE id = ?`);
-            const post = await getPostByIdStmt.get(id);
+        if (!title || !content) {
+            return res.status(400).send({ message: "Title and content is required" });
+        }
 
-            if(!post){
-                return res.status(404).send({message: "Post not found!"});
-            }
-
-            if(post.user_id !== userId){
-                return res.status(403).send({message: "Not your post!"});
-            }
-
-            const deletePostStmt = await db.prepare(`DELETE FROM posts WHERE id = ?`);
-            await deletePostStmt.run(id);
-
-            res.json({message: "Post deleted!"});
+        try {
+            const insertPostStmt = await db.prepare(`
+                INSERT INTO posts (user_id, title, content, category) VALUES (?, ?, ?, ?)
+            `);
+            const result = await insertPostStmt.run(user_id, title, content, category || null);
+            return res.status(201).json({ id: result.lastID });
         } catch (e) {
-            return res.status(500).send({message: "Could not delete post"});
+            console.log(e);
+            return res.status(500).send({ message: "Could not create post" });
         }
     });
 
-    router.put("/:id", isLoggedIn, async (req, res) =>{
+   router.post("/:id/like", isLoggedIn, async (req, res) => {
+        const { id } = req.params;
+        const userId = req.session.user.id;
+
+        try {
+            const insertLikeStmt = await db.prepare(`INSERT INTO likes (post_id, user_id) VALUES (?, ?)`);
+            await insertLikeStmt.run(id, userId);
+
+            const getLikeCountStmt = await db.prepare(`SELECT COUNT(*) AS like_count FROM likes WHERE post_id = ?`);
+            const { like_count } = await getLikeCountStmt.get(id);
+
+            io.emit('like_updated', { postId: Number(id), like_count });
+            res.json({ liked: true });
+        } catch {
+            const deleteLikeStmt = await db.prepare(`DELETE FROM likes WHERE post_id = ? AND user_id = ?`);
+            await deleteLikeStmt.run(id, userId);
+
+            const getLikeCountStmt = await db.prepare(`SELECT COUNT(*) AS like_count FROM likes WHERE post_id = ?`);
+            const { like_count } = await getLikeCountStmt.get(id);
+
+            io.emit('like_updated', { postId: Number(id), like_count });
+            res.json({ liked: false });
+        }
+    });
+
+       router.post("/:id/comments", isLoggedIn, async (req, res) => {
+        const { id } = req.params;
+        const { content } = req.body;
+        const userId = req.session.user.id;
+
+        if (!content) {
+            return res.status(400).send({ message: "Comment cannot be empty!" });
+        }
+
+        try {
+            const insertCommentStmt = await db.prepare(`
+                INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)
+            `);
+            await insertCommentStmt.run(id, userId, content);
+
+            const getCommentsByPostStmt = await db.prepare(`
+                SELECT c.*, u.username
+                FROM comments c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.post_id = ?
+                ORDER BY c.created_at ASC
+            `);
+            const comments = await getCommentsByPostStmt.all(id);
+
+            io.emit('comments_updated', { postId: Number(id), comments });
+            return res.status(201).json({ message: "Comment posted!" });
+        } catch (e) {
+            console.log(e);
+            return res.status(500).send({ message: "Could not post comment" });
+        }
+    });
+
+     router.put("/:id", isLoggedIn, async (req, res) =>{
         const { id } = req.params;
         const { title, content, category } = req.body;
         const userId = req.session.user.id;
@@ -151,79 +202,28 @@ export default function postsRouter(io) {
         }
     });
 
-    router.post("/:id/like", isLoggedIn, async (req, res) => {
+    router.delete("/:id", isLoggedIn, async (req, res) =>{
         const { id } = req.params;
         const userId = req.session.user.id;
 
-        try {
-            const insertLikeStmt = await db.prepare(`INSERT INTO likes (post_id, user_id) VALUES (?, ?)`);
-            await insertLikeStmt.run(id, userId);
+        try{
+            const getPostByIdStmt = await db.prepare(`SELECT * FROM posts WHERE id = ?`);
+            const post = await getPostByIdStmt.get(id);
 
-            const getLikeCountStmt = await db.prepare(`SELECT COUNT(*) AS like_count FROM likes WHERE post_id = ?`);
-            const { like_count } = await getLikeCountStmt.get(id);
+            if(!post){
+                return res.status(404).send({message: "Post not found!"});
+            }
 
-            io.emit('like_updated', { postId: Number(id), like_count });
-            res.json({ liked: true });
-        } catch {
-            const deleteLikeStmt = await db.prepare(`DELETE FROM likes WHERE post_id = ? AND user_id = ?`);
-            await deleteLikeStmt.run(id, userId);
+            if(post.user_id !== userId){
+                return res.status(403).send({message: "Not your post!"});
+            }
 
-            const getLikeCountStmt = await db.prepare(`SELECT COUNT(*) AS like_count FROM likes WHERE post_id = ?`);
-            const { like_count } = await getLikeCountStmt.get(id);
+            const deletePostStmt = await db.prepare(`DELETE FROM posts WHERE id = ?`);
+            await deletePostStmt.run(id);
 
-            io.emit('like_updated', { postId: Number(id), like_count });
-            res.json({ liked: false });
-        }
-    });
-
-    router.get("/:id/comments", isLoggedIn, async (req, res) => {
-        const { id } = req.params;
-
-        try {
-            const getCommentsByPostStmt = await db.prepare(`
-                SELECT c.*, u.username
-                FROM comments c
-                JOIN users u ON c.user_id = u.id
-                WHERE c.post_id = ?
-                ORDER BY c.created_at ASC
-            `);
-            const comments = await getCommentsByPostStmt.all(id);
-            res.json({ comments });
+            res.json({message: "Post deleted!"});
         } catch (e) {
-            console.log(e);
-            return res.status(500).send({ message: "Could not fetch comments" });
-        }
-    });
-
-    router.post("/:id/comments", isLoggedIn, async (req, res) => {
-        const { id } = req.params;
-        const { content } = req.body;
-        const userId = req.session.user.id;
-
-        if (!content) {
-            return res.status(400).send({ message: "Comment cannot be empty!" });
-        }
-
-        try {
-            const insertCommentStmt = await db.prepare(`
-                INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)
-            `);
-            await insertCommentStmt.run(id, userId, content);
-
-            const getCommentsByPostStmt = await db.prepare(`
-                SELECT c.*, u.username
-                FROM comments c
-                JOIN users u ON c.user_id = u.id
-                WHERE c.post_id = ?
-                ORDER BY c.created_at ASC
-            `);
-            const comments = await getCommentsByPostStmt.all(id);
-
-            io.emit('comments_updated', { postId: Number(id), comments });
-            return res.status(201).json({ message: "Comment posted!" });
-        } catch (e) {
-            console.log(e);
-            return res.status(500).send({ message: "Could not post comment" });
+            return res.status(500).send({message: "Could not delete post"});
         }
     });
 

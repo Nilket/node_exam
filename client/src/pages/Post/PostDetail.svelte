@@ -99,19 +99,24 @@
             <a href="/" class="back-btn">Back</a>
 
             {#if post.user_id === $user.id}
-                <button class="post-delete-btn" onclick={() => deletePost()}>Delete</button>
-                <button class="post-edit-btn" onclick={() => navigate(`/posts/${id}/edit`)}>Edit</button>
+                <button class="post-delete-btn" onclick={() => deletePost()}
+                    >Delete</button
+                >
+                <button
+                    class="post-edit-btn"
+                    onclick={() => navigate(`/posts/${id}/edit`)}>Edit</button
+                >
             {/if}
 
             <div class="detail-meta">
                 {#if post.category}
                     <span class="category-tag">{post.category}</span>
                 {/if}
-                <a href="/users/{post.username}" class="author">by {post.username}</a>
+                <a href="/users/{post.username}" class="author"
+                    >by {post.username}</a
+                >
                 <span class="date"
-                    >{new Date(post.created_at).toLocaleString(
-                        'da-DK'
-                    )}</span
+                    >{new Date(post.created_at).toLocaleString('da-DK')}</span
                 >
             </div>
 
@@ -145,11 +150,13 @@
                 {#each comments as comment (comment.id)}
                     <div class="comment-card">
                         <div class="comment-meta">
-                            <a href="/users/{comment.username}" class="author">{comment.username}</a>
+                            <a href="/users/{comment.username}" class="author"
+                                >{comment.username}</a
+                            >
                             <span class="date"
-                                >{new Date(
-                                    comment.created_at
-                                ).toLocaleString('da-DK')}</span
+                                >{new Date(comment.created_at).toLocaleString(
+                                    'da-DK'
+                                )}</span
                             >
                             {#if comment.user_id === $user.id}
                                 <button

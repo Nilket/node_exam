@@ -30,18 +30,23 @@
     {#if profile}
         <div class="profile-card">
             <div class="profile-header">
-                <div class="profile-avatar">{profile.username[0].toUpperCase()}</div>
+                <div class="profile-avatar">
+                    {profile.username[0].toUpperCase()}
+                </div>
                 <div class="profile-info">
                     <h1>{profile.username}</h1>
-                    <span class="profile-name">{profile.first_name} {profile.last_name}</span>
+                    <span class="profile-name"
+                        >{profile.first_name} {profile.last_name}</span
+                    >
                     <span class="profile-email">{profile.email}</span>
                 </div>
                 {#if $user.username === profile.username}
-                <a href="/users/edit" class="edit-profile-btn">Edit profile</a>
+                    <a href="/users/edit" class="edit-profile-btn"
+                        >Edit profile</a
+                    >
                 {/if}
             </div>
 
-            
             <div class="profile-stats">
                 <div class="stat">
                     <span class="stat-value">{stats.post_count}</span>
@@ -69,17 +74,27 @@
                         <div class="post-card">
                             <div class="post-meta">
                                 {#if post.category}
-                                    <span class="category-tag">{post.category}</span>
+                                    <span class="category-tag"
+                                        >{post.category}</span
+                                    >
                                 {/if}
                                 <span class="date">
-                                    {new Date(post.created_at).toLocaleString('da-DK')}
+                                    {new Date(post.created_at).toLocaleString(
+                                        'da-DK'
+                                    )}
                                 </span>
                             </div>
                             <h2>{post.title}</h2>
-                            <p class="preview">{post.content.slice(0, 150)}...</p>
+                            <p class="preview">
+                                {post.content.slice(0, 150)}...
+                            </p>
                             <div class="post-footer">
-                                <span class="like-btn">♥ {post.like_count}</span>
-                                <span class="comment-count">💬 {post.comment_count}</span>
+                                <span class="like-btn"
+                                    >♥ {post.like_count}</span
+                                >
+                                <span class="comment-count"
+                                    >💬 {post.comment_count}</span
+                                >
                             </div>
                         </div>
                     </a>

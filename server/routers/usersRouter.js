@@ -27,6 +27,7 @@ router.get("/:username", isLoggedIn, async (req, res) => {
             GROUP BY posts.id
             ORDER BY posts.created_at DESC
         `);
+        
         const posts = await getUserPostsStmt.all(user.id);
 
         const getStatsStmt = await db.prepare(`

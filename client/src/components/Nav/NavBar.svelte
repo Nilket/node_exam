@@ -21,7 +21,9 @@
 
     <div class="links">
         {#if $user}
-            <Link to="/users/{$user.username}" class="username">{$user.username}</Link>
+            <Link to="/users/{$user.username}" class="username"
+                >{$user.username}</Link
+            >
             <Link to="/posts/new" class="btn-new-post">+</Link>
             <button onclick={handleLogout}>Log out</button>
         {:else}

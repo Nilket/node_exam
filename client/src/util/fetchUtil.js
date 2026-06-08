@@ -33,20 +33,6 @@ export async function fetchPost(endpoint, body) {
             return data;
 }
 
-export async function fetchDelete(endpoint){
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
-        method: "DELETE",
-        credentials: "include"
-    });
-
-    const data = await response.json();
-
-    if (!response.ok){
-        throw new Error(data.message || "Fetch delete went wrong!")
-    }
-    return data;
-}
-
 export async function fetchPut(endpoint, body){
     const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
         method: 'PUT',
@@ -61,6 +47,20 @@ export async function fetchPut(endpoint, body){
 
     if(!response.ok){
         throw new Error(data.message || 'Fetch patch went wrong!');
+    }
+    return data;
+}
+
+export async function fetchDelete(endpoint){
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
+        method: "DELETE",
+        credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok){
+        throw new Error(data.message || "Fetch delete went wrong!")
     }
     return data;
 }
